@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://seungkyu:1204@localhost:12041/users?authSource=admin
