@@ -6,12 +6,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.security.Principal
 
 class SeungkyuAuthentication(
-    private val name: String,
+    private val id: String,
     private val role: String
 ): Authentication {
 
     override fun getName(): String {
-        return this.name
+        return this.id
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -27,7 +27,7 @@ class SeungkyuAuthentication(
     }
 
     override fun getPrincipal(): Any {
-        return Principal { name }
+        return Principal { id }
     }
 
     override fun isAuthenticated(): Boolean {

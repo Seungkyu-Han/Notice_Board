@@ -22,9 +22,17 @@ class JwtTokenProvider(
             .body.get("id", java.lang.String::class.java).toString()
     }
 
-    fun getJwtToken(id: String): String{
+    fun getRole(token: String): String{
+        return Jwts.parser()
+            .setSigningKey(secretKey)
+            .parseClaimsJws(token)
+            .body.get("role", java.lang.String::class.java).toString()
+    }
+
+    fun getJwtToken(id: String, role: String): String{
         val claims = Jwts.claims()
         claims["id"] = id
+        claims["role"] = role
 
         return Jwts.builder()
             .setClaims(claims)
