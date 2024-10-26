@@ -9,7 +9,7 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
 @Component
-class WebFluxSecurityFilter(
+open class WebFluxSecurityFilter(
     private val jwtTokenProvider: JwtTokenProvider
 ): WebFilter {
 
@@ -24,11 +24,7 @@ class WebFluxSecurityFilter(
             )
 
             return chain.filter(exchange)
-                .contextWrite {
-                    it.put("authentication", ReactiveSecurityContextHolder.withAuthentication(
-                        authentication
-                    ))
-                }
+                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
         }
 
         return chain.filter(exchange)
