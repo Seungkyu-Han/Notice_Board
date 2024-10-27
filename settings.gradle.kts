@@ -10,3 +10,4 @@ include("user:core")
 findProject(":user:core")?.name = "core"
 include("user:persistence")
 findProject(":user:persistence")?.name = "persistence"
+include("aop")
