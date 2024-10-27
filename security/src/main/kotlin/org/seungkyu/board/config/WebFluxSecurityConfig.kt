@@ -30,7 +30,8 @@ open class WebFluxSecurityConfig(
                 it.disable()
             }
             .authorizeExchange {
-
+                it.pathMatchers("/users/register**", "/users/login**").permitAll()
+                it.anyExchange().authenticated()
             }
             .addFilterAt(webFluxSecurityFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .build()
