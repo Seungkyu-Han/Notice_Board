@@ -29,7 +29,7 @@ dependencies {
     // reactor test
     testImplementation("io.projectreactor:reactor-test")
 
-
+    implementation("org.glassfish.jaxb:jaxb-runtime:2.3.2")
     // mockito
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation ("org.mockito:mockito-core")
