@@ -17,6 +17,7 @@ import org.seungkyu.board.config.JwtTokenProvider
 import org.seungkyu.board.config.SeungkyuAuthentication
 import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.LoginReq
+import org.seungkyu.board.dto.req.PatchPasswordReq
 import org.seungkyu.board.dto.req.RegisterReq
 import org.seungkyu.board.dto.res.LoginRes
 import org.seungkyu.board.dto.res.UserInfoRes
@@ -314,6 +315,81 @@ class UserServiceImplTest {
                 ReactiveSecurityContextHolder.withAuthentication(
                     SeungkyuAuthentication(testId, testRole.name)
                 )
+            ).block()
+        }
+    }
+
+    @Nested
+    inner class PatchPassword{
+        @Test
+        fun patch_password_with_valid_user_return_ok(){
+            mono{
+                //given
+                val newPassword = "new $testPassword"
+
+                `when`(serverRequest.bodyToMono(PatchPasswordReq::class.java))
+                    .thenReturn(Mono.just(PatchPasswordReq(
+                        beforePassword = testPassword,
+                        afterPassword = newPassword
+                    )))
+
+                `when`(userMongoRepository.findByUserId(testId))
+                    .thenReturn(Mono.just(testUserDocument))
+
+                `when`(bcryptPasswordEncoder.matches(any(), any()))
+                    .thenReturn(true)
+
+                `when`(bcryptPasswordEncoder.encode(newPassword))
+                    .thenReturn(newPassword)
+
+                `when`(userMongoRepository.save(any()))
+                    .thenReturn(Mono.just(testUserDocument))
+
+                //when
+                val target = Mono.just(userServiceImpl.patchPassword(serverRequest))
+
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.OK == it.statusCode()
+                    }.verifyComplete()
+
+            }.contextWrite(
+                ReactiveSecurityContextHolder.withAuthentication(SeungkyuAuthentication(testId, testRole.name))
+            ).block()
+        }
+
+        @Test
+        fun patch_password_with_invalid_password_return_forbidden(){
+            mono{
+                //given
+                val newPassword = "new $testPassword"
+
+                `when`(serverRequest.bodyToMono(PatchPasswordReq::class.java))
+                    .thenReturn(Mono.just(PatchPasswordReq(
+                        beforePassword = testPassword,
+                        afterPassword = newPassword
+                    )))
+
+                `when`(userMongoRepository.findByUserId(testId))
+                    .thenReturn(Mono.just(testUserDocument))
+
+                `when`(bcryptPasswordEncoder.matches(any(), any()))
+                    .thenReturn(false)
+
+                //when
+                val target = Mono.just(userServiceImpl.patchPassword(serverRequest))
+
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.FORBIDDEN == it.statusCode()
+                    }.verifyComplete()
+
+            }.contextWrite(
+                ReactiveSecurityContextHolder.withAuthentication(SeungkyuAuthentication(testId, testRole.name))
             ).block()
         }
     }
