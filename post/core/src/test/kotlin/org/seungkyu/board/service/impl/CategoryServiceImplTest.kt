@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.reactor.mono
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -15,6 +16,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.seungkyu.board.config.SeungkyuAuthentication
 import org.seungkyu.board.data.enums.Role
+import org.seungkyu.board.dto.req.CategoryPatchReq
 import org.seungkyu.board.dto.req.CategoryPostReq
 import org.seungkyu.board.dto.res.CategoryGetRes
 import org.seungkyu.board.entity.CategoryDocument
@@ -56,11 +58,12 @@ class CategoryServiceImplTest{
         categoryServiceImpl = CategoryServiceImpl(categoryMongoRepository)
     }
 
+    private val testCategory = CategoryDocument(
+        id =ObjectId.get(), name = "testName", isAscending = true, searchCount = 0, userId = "testUser"
+    )
+
     @Nested
     inner class PostCategory{
-        private val testCategory = CategoryDocument(
-            id = null, name = "testName", isAscending = true, searchCount = 0, userId = "testUser"
-        )
 
         @Test
         fun post_with_admin_return_created(){
@@ -166,6 +169,83 @@ class CategoryServiceImplTest{
                     .verifyComplete()
             }.block()
 
+        }
+    }
+
+    @Nested
+    inner class PatchCategory{
+        @Test
+        fun patch_return_ok(){
+            mono{
+                //when
+                `when`(serverRequest.bodyToMono(CategoryPatchReq::class.java))
+                    .thenReturn(
+                        Mono.just(
+                            CategoryPatchReq(
+                                id = testCategory.id!!,
+                                name = testCategory.name,
+                                isAscending = testCategory.isAscending)
+                        )
+                    )
+
+                `when`(categoryMongoRepository.findById(testCategory.id!!))
+                    .thenReturn(Mono.just(testCategory))
+
+                `when`(categoryMongoRepository.save(any()))
+                    .thenReturn(Mono.just(testCategory))
+
+                //when
+                val target = Mono.just(categoryServiceImpl.patch(serverRequest))
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.OK == it.statusCode()
+                    }
+                    .verifyComplete()
+
+
+            }.contextWrite(
+                ReactiveSecurityContextHolder.withAuthentication(
+                    SeungkyuAuthentication(testCategory.userId, Role.ADMIN.name)
+                )
+            ).block()
+        }
+
+        @Test
+        fun patch_invalid_user_return_forbidden(){
+            mono{
+                //when
+                `when`(serverRequest.bodyToMono(CategoryPatchReq::class.java))
+                    .thenReturn(
+                        Mono.just(
+                            CategoryPatchReq(
+                                id = testCategory.id!!,
+                                name = testCategory.name,
+                                isAscending = testCategory.isAscending)
+                        )
+                    )
+
+                `when`(categoryMongoRepository.findById(testCategory.id!!))
+                    .thenReturn(Mono.just(testCategory))
+
+
+                //when
+                val target = Mono.just(categoryServiceImpl.patch(serverRequest))
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.FORBIDDEN == it.statusCode()
+                    }
+                    .verifyComplete()
+
+
+            }.contextWrite(
+                ReactiveSecurityContextHolder.withAuthentication(
+                    SeungkyuAuthentication("testtest", Role.ADMIN.name)
+                )
+            ).block()
         }
     }
 
