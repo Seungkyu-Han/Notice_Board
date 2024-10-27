@@ -23,6 +23,17 @@ dependencies {
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.5")
 
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+
+    // reactor test
+    testImplementation("io.projectreactor:reactor-test")
+
+
+    // mockito
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation ("org.mockito:mockito-core")
+
     //MONGO
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 

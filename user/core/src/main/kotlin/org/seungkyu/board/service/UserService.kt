@@ -7,8 +7,8 @@ interface UserService {
 
     suspend fun register(serverRequest: ServerRequest): ServerResponse
     suspend fun login(request: ServerRequest): ServerResponse
-    suspend fun getUserInfo(request: ServerRequest): ServerResponse
-    suspend fun updatePassword(request: ServerRequest): ServerResponse
+    suspend fun getUser(request: ServerRequest): ServerResponse
+    suspend fun patchPassword(request: ServerRequest): ServerResponse
     suspend fun deleteId(request: ServerRequest): ServerResponse
     suspend fun logout(request: ServerRequest): ServerResponse
 }
