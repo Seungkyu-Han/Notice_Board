@@ -7,17 +7,20 @@ import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.LoginReq
 import org.seungkyu.board.dto.req.RegisterReq
 import org.seungkyu.board.dto.res.LoginRes
+import org.seungkyu.board.dto.res.UserInfoRes
 import org.seungkyu.board.entity.UserDocument
 import org.seungkyu.board.repository.UserMongoRepository
 import org.seungkyu.board.service.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
+import reactor.core.publisher.Mono
 
 @Service
 class UserServiceImpl(
@@ -68,7 +71,19 @@ class UserServiceImpl(
     }
 
     override suspend fun getUser(request: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val userId = this.getUserIdByContext().awaitSingleOrNull() ?: return ServerResponse.status(403).buildAndAwait()
+
+        val user = userMongoRepository.findByUserId(userId).awaitSingleOrNull()
+
+        return if(user != null){
+            ServerResponse.ok().bodyValueAndAwait(
+                UserInfoRes(
+                    userId = user.userId, nickname = user.nickName, isAdmin = (Role.ADMIN.name == user.status)
+                )
+            )
+        } else{
+            ServerResponse.status(404).buildAndAwait()
+        }
     }
 
     override suspend fun patchPassword(request: ServerRequest): ServerResponse {
@@ -82,4 +97,12 @@ class UserServiceImpl(
     override suspend fun logout(request: ServerRequest): ServerResponse {
         TODO("Not yet implemented")
     }
+
+    fun getUserIdByContext(): Mono<String> {
+        return ReactiveSecurityContextHolder.getContext()
+            .map {
+                it.authentication.name
+            }
+    }
+
 }
