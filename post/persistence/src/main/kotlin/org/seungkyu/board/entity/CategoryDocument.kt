@@ -9,6 +9,7 @@ data class CategoryDocument(
     @Id
     val id: ObjectId?,
     var name: String,
+    val userId: String,
     var isAscending: Boolean,
     var searchCount: Int,
 )

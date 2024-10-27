@@ -34,7 +34,8 @@ class CategoryServiceImpl(
             id= null,
             name = categoryPostReq.name,
             isAscending = categoryPostReq.isAscending,
-            searchCount = 0
+            searchCount = 0,
+            userId = getUserIdByContext().awaitSingle()
         )
 
         categoryMongoRepository.save(categoryDocument).awaitSingle()
