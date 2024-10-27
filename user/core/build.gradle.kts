@@ -27,8 +27,10 @@ dependencies {
 
 
     // reactor test
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
     testImplementation("io.projectreactor:reactor-test")
 
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.2")
     // mockito
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")

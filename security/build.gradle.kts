@@ -14,6 +14,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
 
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.2")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+
     testImplementation("org.glassfish.jaxb:jaxb-runtime:2.3.2")
 
     testImplementation("javax.xml.bind:jaxb-api:2.3.1")

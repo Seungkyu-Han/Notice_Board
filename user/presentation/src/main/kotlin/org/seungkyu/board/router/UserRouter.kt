@@ -16,10 +16,10 @@ class UserRouter {
         "/users".nest {
             POST("/register", userService::register)
             POST("/login", userService::login)
-            GET("/my-info", userService::getUser)
+            GET("/info", userService::getUser)
             PUT("/logout", userService::logout)
             PATCH("/password", userService::patchPassword)
-            DELETE("/withdraw", userService::deleteId)
+            DELETE("", userService::deleteId)
         }
     }
 }

@@ -1,0 +1,10 @@
+GET http://localhost:8080/users/info
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+> {%
+client.test("info", function(){
+    client.assert(response.body.user_id == "seungkyu")
+    client.assert(response.body.nickname == "seungkyu")
+    client.assert(response.body.admin == false)
+}) %}
