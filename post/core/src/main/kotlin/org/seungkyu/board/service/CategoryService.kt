@@ -7,4 +7,5 @@ interface CategoryService {
 
     suspend fun post(serverRequest: ServerRequest): ServerResponse
     suspend fun get(serverRequest: ServerRequest): ServerResponse
+    suspend fun patch(serverRequest: ServerRequest): ServerResponse
 }
