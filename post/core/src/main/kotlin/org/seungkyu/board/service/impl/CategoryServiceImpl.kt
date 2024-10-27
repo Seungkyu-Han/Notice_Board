@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
+import org.bson.types.ObjectId
 import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.CategoryPatchReq
 import org.seungkyu.board.dto.req.CategoryPostReq
@@ -69,6 +70,20 @@ class CategoryServiceImpl(
         categoryMongoRepository.save(categoryDocument).awaitSingle()
 
         return ServerResponse.ok().buildAndAwait()
+    }
+
+    override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
+        val categoryId = serverRequest.pathVariable("id") ?: return ServerResponse.notFound().buildAndAwait()
+
+        val categoryDocument = categoryMongoRepository.findById(ObjectId(categoryId)).awaitSingleOrNull() ?: return ServerResponse.notFound().buildAndAwait()
+
+        if(categoryDocument.userId == getUserIdByContext().awaitSingle()){
+            categoryMongoRepository.deleteById(categoryDocument.id!!).awaitSingleOrNull()
+            return ServerResponse.ok().buildAndAwait()
+        }
+        else{
+            return ServerResponse.status(403).buildAndAwait()
+        }
     }
 
     private fun getUserIdByContext(): Mono<String> {
