@@ -1,0 +1,8 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://seungkyu:1204@localhost:12041/users?authSource=admin
+      auto-index-creation: false
+
+jwt:
+  secret-key: newSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyu

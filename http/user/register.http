@@ -1,0 +1,14 @@
+POST http://localhost:8080/users/register
+Content-Type: application/json
+
+{
+  "user_id": "seungkyu",
+  "password": "1204",
+  "nickname": "seungkyu"
+}
+
+> {%
+client.test("register", function(){
+    client.assert(response.status == 201)
+})
+ %}
