@@ -249,6 +249,87 @@ class CategoryServiceImplTest{
         }
     }
 
+    @Nested
+    inner class DeleteCategory{
+        @Test
+        fun delete_return_ok(){
+            mono{
+                //given
+                `when`(serverRequest.pathVariable("id"))
+                    .thenReturn(testCategory.id.toString())
+
+                `when`(categoryMongoRepository.findById(testCategory.id!!))
+                    .thenReturn(Mono.just(testCategory))
+
+                `when`(categoryMongoRepository.deleteById(any<ObjectId>()))
+                    .thenReturn(Mono.empty())
+
+                //when
+                val target = Mono.just(categoryServiceImpl.delete(serverRequest))
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.OK == it.statusCode()
+                    }
+                    .verifyComplete()
+
+            }.contextWrite(ReactiveSecurityContextHolder.withAuthentication(
+                SeungkyuAuthentication(testCategory.userId, Role.ADMIN.name)
+            )).block()
+        }
+
+        @Test
+        fun delete_invalid_user_return_forbidden(){
+            mono{
+                //given
+                `when`(serverRequest.pathVariable("id"))
+                    .thenReturn(testCategory.id.toString())
+
+                `when`(categoryMongoRepository.findById(testCategory.id!!))
+                    .thenReturn(Mono.just(testCategory))
+
+                //when
+                val target = Mono.just(categoryServiceImpl.delete(serverRequest))
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.FORBIDDEN == it.statusCode()
+                    }
+                    .verifyComplete()
+
+            }.contextWrite(ReactiveSecurityContextHolder.withAuthentication(
+                SeungkyuAuthentication("testtest", Role.ADMIN.name)
+            )).block()
+        }
+
+        @Test
+        fun delete_invalid_category_return_not_found(){
+            mono{
+                //given
+                `when`(serverRequest.pathVariable("id"))
+                    .thenReturn(testCategory.id.toString())
+
+                `when`(categoryMongoRepository.findById(testCategory.id!!))
+                    .thenReturn(Mono.empty())
+
+                //when
+                val target = Mono.just(categoryServiceImpl.delete(serverRequest))
+
+                //then
+                StepVerifier.create(target)
+                    .expectNextMatches {
+                        HttpStatus.NOT_FOUND == it.statusCode()
+                    }
+                    .verifyComplete()
+
+            }.contextWrite(ReactiveSecurityContextHolder.withAuthentication(
+                SeungkyuAuthentication("testtest", Role.ADMIN.name)
+            )).block()
+        }
+    }
+
 
     private suspend inline fun <reified T> fetchBody(serverResponse: ServerResponse): T {
         val defaultContext: ServerResponse.Context = object : ServerResponse.Context {
