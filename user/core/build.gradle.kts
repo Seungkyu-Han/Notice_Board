@@ -19,6 +19,7 @@ dependencies {
 
     implementation(project(":user:persistence"))
     implementation(project(":security"))
+    implementation(project(":aop"))
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.5")

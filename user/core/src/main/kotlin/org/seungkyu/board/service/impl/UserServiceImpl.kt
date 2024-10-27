@@ -2,6 +2,7 @@ package org.seungkyu.board.service.impl
 
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.seungkyu.board.aop.UserLog
 import org.seungkyu.board.config.JwtTokenProvider
 import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.LoginReq
@@ -71,6 +72,7 @@ class UserServiceImpl(
         }
     }
 
+    @UserLog
     override suspend fun getUser(request: ServerRequest): ServerResponse {
         val userId = this.getUserIdByContext().awaitSingleOrNull() ?: return ServerResponse.status(403).buildAndAwait()
 
@@ -87,6 +89,7 @@ class UserServiceImpl(
         }
     }
 
+    @UserLog
     override suspend fun patchPassword(request: ServerRequest): ServerResponse {
         val updatePasswordReq = request.bodyToMono(PatchPasswordReq::class.java).awaitSingle()
 
@@ -103,6 +106,7 @@ class UserServiceImpl(
         }
     }
 
+    @UserLog
     override suspend fun deleteId(request: ServerRequest): ServerResponse {
         val userId = getUserIdByContext().awaitSingle()
 
@@ -114,6 +118,7 @@ class UserServiceImpl(
         return ServerResponse.ok().buildAndAwait()
     }
 
+    @UserLog
     override suspend fun logout(request: ServerRequest): ServerResponse {
         return ServerResponse.ok().buildAndAwait()
     }
