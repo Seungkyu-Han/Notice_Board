@@ -1,17 +1,16 @@
 package org.seungkyu.board.service.impl
 
-import com.mongodb.DuplicateKeyException
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-//import org.seungkyu.board.config.BCryptPasswordEncoderConfig
 import org.seungkyu.board.config.JwtTokenProvider
-import org.seungkyu.board.data.enums.Status
+import org.seungkyu.board.data.enums.Role
+import org.seungkyu.board.dto.req.LoginReq
 import org.seungkyu.board.dto.req.RegisterReq
+import org.seungkyu.board.dto.res.LoginRes
 import org.seungkyu.board.entity.UserDocument
 import org.seungkyu.board.repository.UserMongoRepository
 import org.seungkyu.board.service.UserService
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -46,7 +45,7 @@ class UserServiceImpl(
             nickName = registerReq.nickname,
             isAdmin = false,
             isWithDraw = false,
-            status = Status.DEFAULT,
+            status = Role.USER.name,
             createdAt = null,
             updatedAt = null
         )
@@ -57,7 +56,15 @@ class UserServiceImpl(
     }
 
     override suspend fun login(request: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val loginReq = request.bodyToMono(LoginReq::class.java).awaitSingle()
+
+        val user = userMongoRepository.findByUserId(loginReq.id).awaitSingleOrNull()
+
+        return if(user != null && bCryptPasswordEncoder.matches(loginReq.password, user.password)){
+            ServerResponse.ok().bodyValueAndAwait(LoginRes(jwtTokenProvider.getJwtToken(user.userId, user.status)))
+        }else{
+            ServerResponse.status(403).buildAndAwait()
+        }
     }
 
     override suspend fun getUser(request: ServerRequest): ServerResponse {

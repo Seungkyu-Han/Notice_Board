@@ -1,7 +1,6 @@
 package org.seungkyu.board.entity
 
 import org.bson.types.ObjectId
-import org.seungkyu.board.data.enums.Status
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.LastModifiedDate
@@ -19,7 +18,7 @@ data class UserDocument (
     var nickName: String,
     var isAdmin: Boolean,
     var isWithDraw: Boolean,
-    var status: Status,
+    var status: String,
     @CreatedDate
     var createdAt: LocalDateTime?,
     @LastModifiedDate
