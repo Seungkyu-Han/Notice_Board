@@ -5,6 +5,7 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.seungkyu.board.config.JwtTokenProvider
 import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.LoginReq
+import org.seungkyu.board.dto.req.PatchPasswordReq
 import org.seungkyu.board.dto.req.RegisterReq
 import org.seungkyu.board.dto.res.LoginRes
 import org.seungkyu.board.dto.res.UserInfoRes
@@ -87,7 +88,19 @@ class UserServiceImpl(
     }
 
     override suspend fun patchPassword(request: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val updatePasswordReq = request.bodyToMono(PatchPasswordReq::class.java).awaitSingle()
+
+        val userId = getUserIdByContext().awaitSingleOrNull() ?: return ServerResponse.status(403).buildAndAwait()
+
+        val user = userMongoRepository.findByUserId(userId).awaitSingleOrNull()
+
+        if(user != null && bCryptPasswordEncoder.matches(updatePasswordReq.beforePassword, user.password)){
+            user.password = bCryptPasswordEncoder.encode(updatePasswordReq.afterPassword)
+            userMongoRepository.save(user).awaitSingle()
+            return ServerResponse.ok().buildAndAwait()
+        }else{
+            return ServerResponse.status(403).buildAndAwait()
+        }
     }
 
     override suspend fun deleteId(request: ServerRequest): ServerResponse {
@@ -95,7 +108,7 @@ class UserServiceImpl(
     }
 
     override suspend fun logout(request: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        return ServerResponse.ok().buildAndAwait()
     }
 
     fun getUserIdByContext(): Mono<String> {
