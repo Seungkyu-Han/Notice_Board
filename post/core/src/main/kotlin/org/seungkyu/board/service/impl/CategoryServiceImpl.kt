@@ -26,6 +26,9 @@ class CategoryServiceImpl(
 ) : CategoryService{
 
     override suspend fun post(serverRequest: ServerRequest): ServerResponse {
+
+        println("HELLO")
+
         if(Role.ADMIN.name != getUserRoleByContext().awaitSingleOrNull()){
             return ServerResponse.status(403).buildAndAwait()
         }
