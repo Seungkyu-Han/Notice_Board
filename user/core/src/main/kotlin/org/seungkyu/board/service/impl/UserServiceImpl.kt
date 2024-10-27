@@ -104,7 +104,14 @@ class UserServiceImpl(
     }
 
     override suspend fun deleteId(request: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val userId = getUserIdByContext().awaitSingle()
+
+        val user = userMongoRepository.findByUserId(userId).awaitSingleOrNull()
+            ?: return ServerResponse.status(403).buildAndAwait()
+
+        userMongoRepository.delete(user).awaitSingleOrNull()
+
+        return ServerResponse.ok().buildAndAwait()
     }
 
     override suspend fun logout(request: ServerRequest): ServerResponse {
