@@ -6,6 +6,11 @@ spring:
     mongodb:
       uri: mongodb://seungkyu:1204@localhost:12041/users?authSource=admin
       auto-index-creation: false
+    redis:
+      host: localhost
+      port: 12042
+      repositories:
+        enabled: true
 
 jwt:
   secret-key: newSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyu
