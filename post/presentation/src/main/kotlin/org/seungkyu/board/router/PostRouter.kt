@@ -17,6 +17,7 @@ class PostRouter {
             POST("", postService::post)
             PATCH("", postService::patch)
             DELETE("", postService::delete)
+            GET("/find", postService::find)
         }
     }
 }

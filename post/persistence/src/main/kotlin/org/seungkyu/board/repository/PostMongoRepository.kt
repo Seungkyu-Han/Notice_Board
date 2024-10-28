@@ -8,4 +8,5 @@ import reactor.core.publisher.Flux
 interface PostMongoRepository: ReactiveMongoRepository<PostDocument, ObjectId> {
 
     fun findByUserId(userId: String): Flux<PostDocument>
+    fun findByNameContains(name: String): Flux<PostDocument>
 }

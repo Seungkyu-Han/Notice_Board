@@ -12,7 +12,7 @@ class CategoryRouter {
     fun categoryRouters(
         categoryService: CategoryService
     ) = coRouter {
-        "categories".nest{
+        "/categories".nest{
             POST("", categoryService::post)
             GET("", categoryService::get)
             PATCH("", categoryService::patch)

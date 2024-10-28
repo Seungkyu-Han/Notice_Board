@@ -9,5 +9,5 @@ interface PostService {
     suspend fun patch(serverRequest: ServerRequest): ServerResponse
     suspend fun get(serverRequest: ServerRequest): ServerResponse
     suspend fun delete(serverRequest: ServerRequest): ServerResponse
-
+    suspend fun find(serverRequest: ServerRequest): ServerResponse
 }
