@@ -18,8 +18,8 @@ import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.PostPatchReq
 import org.seungkyu.board.dto.req.PostPostReq
 import org.seungkyu.board.dto.res.PostGetRes
-import org.seungkyu.board.entity.CategoryDocument
 import org.seungkyu.board.entity.PostDocument
+import org.seungkyu.board.repository.CategoryMongoRepository
 import org.seungkyu.board.repository.PostMongoRepository
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
@@ -44,6 +44,8 @@ class PostServiceImplTest{
 
     @MockBean
     private lateinit var postMongoRepository: PostMongoRepository
+    @MockBean
+    private lateinit var categoryMongoRepository: CategoryMongoRepository
 
     private lateinit var postServiceImpl: PostServiceImpl
 
@@ -55,7 +57,7 @@ class PostServiceImplTest{
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        postServiceImpl = PostServiceImpl(postMongoRepository)
+        postServiceImpl = PostServiceImpl(postMongoRepository, categoryMongoRepository)
     }
 
     private val testPostDocument = PostDocument(
@@ -65,13 +67,7 @@ class PostServiceImplTest{
         content = "testContent",
         createdAt = null,
         updatedAt = null,
-        categoryDocument = CategoryDocument(
-            id = ObjectId.get(),
-            name = null,
-            userId = null,
-            isAscending = null,
-            searchCount = null
-        )
+        categoryDocument = ObjectId.get()
     )
 
     @Nested
@@ -86,7 +82,7 @@ class PostServiceImplTest{
                             PostPostReq(
                                 name = testPostDocument.name,
                                 content = testPostDocument.content,
-                                categoryId = testPostDocument.categoryDocument.id.toString()
+                                categoryId = testPostDocument.categoryDocument.toString()
                             )
                         )
                     )
@@ -143,7 +139,7 @@ class PostServiceImplTest{
                                 id = testPostDocument.id!!.toHexString(),
                                 name = testPostDocument.name,
                                 content = testPostDocument.content,
-                                categoryId = testPostDocument.categoryDocument.id.toString()
+                                categoryId = testPostDocument.categoryDocument.toString()
                             )
                         )
                     )

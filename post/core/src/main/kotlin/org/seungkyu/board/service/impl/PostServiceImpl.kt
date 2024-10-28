@@ -8,8 +8,8 @@ import org.bson.types.ObjectId
 import org.seungkyu.board.dto.req.PostPatchReq
 import org.seungkyu.board.dto.req.PostPostReq
 import org.seungkyu.board.dto.res.PostGetRes
-import org.seungkyu.board.entity.CategoryDocument
 import org.seungkyu.board.entity.PostDocument
+import org.seungkyu.board.repository.CategoryMongoRepository
 import org.seungkyu.board.repository.PostMongoRepository
 import org.seungkyu.board.service.PostService
 import org.springframework.http.HttpStatus
@@ -20,7 +20,8 @@ import reactor.core.publisher.Mono
 
 @Service
 class PostServiceImpl(
-    private val postMongoRepository: PostMongoRepository
+    private val postMongoRepository: PostMongoRepository,
+    private val categoryMongoRepository: CategoryMongoRepository,
 ): PostService {
 
     override suspend fun post(serverRequest: ServerRequest): ServerResponse {
@@ -28,6 +29,9 @@ class PostServiceImpl(
             return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
 
         val postPostReq = serverRequest.bodyToMono(PostPostReq::class.java).awaitSingle()
+        val category = categoryMongoRepository.findById(ObjectId(postPostReq.categoryId)).awaitSingleOrNull()
+
+        println(category)
 
         val postDocument = PostDocument(
             id = null,
@@ -36,14 +40,9 @@ class PostServiceImpl(
             content = postPostReq.content,
             createdAt = null,
             updatedAt = null,
-            categoryDocument = CategoryDocument(
-                id = ObjectId(postPostReq.categoryId),
-                name = null,
-                userId = null,
-                isAscending = null,
-                searchCount = null
-            )
+            categoryDocument = ObjectId(postPostReq.categoryId),
         )
+
 
         postMongoRepository.save(postDocument).awaitSingle()
 
@@ -58,6 +57,8 @@ class PostServiceImpl(
 
         val postDocument = postMongoRepository.findById(ObjectId(postPatchReq.id)).awaitSingleOrNull()
 
+        println(postDocument)
+
         if(postDocument == null)
             return ServerResponse.status(HttpStatus.NOT_FOUND).buildAndAwait()
         else if (postDocument.userId != userId) {
@@ -66,6 +67,7 @@ class PostServiceImpl(
         else{
             postDocument.name = postPatchReq.name
             postDocument.content = postPatchReq.content
+
             postMongoRepository.save(postDocument).awaitSingle()
             return ServerResponse.ok().buildAndAwait()
         }
@@ -82,7 +84,7 @@ class PostServiceImpl(
                         content = it.content,
                         createdAt = it.createdAt,
                         updatedAt = it.updatedAt,
-                        categoryId = it.categoryDocument.id!!.toHexString(),
+                        categoryId = it.categoryDocument!!.toHexString(),
                     )
                 }.toStream()
         }.toList())

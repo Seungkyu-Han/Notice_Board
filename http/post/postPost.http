@@ -1,0 +1,25 @@
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "password": "1204"
+}
+
+> {%
+    client.test("test", function(){
+        client.global.set("admin_token", response.body.token)
+    })
+%}
+
+###
+POST http://localhost:8081/posts
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "testName",
+  "content": "hello",
+  "categoryId": "671f019a1e03573103c881ce"
+}
+

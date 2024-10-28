@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.spring")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+//    kotlin("plugin.allopen") version "1.8.22"
 }
 
 
@@ -21,6 +22,9 @@ dependencies {
 
     //MONGO
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 
     //REACTOR
     implementation("io.projectreactor:reactor-tools")
