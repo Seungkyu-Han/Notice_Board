@@ -1,0 +1,11 @@
+PATCH http://localhost:8081/posts
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "id": "671f3845ccaf1e54ae8bb6f0",
+  "name": "testName",
+  "content": "hello",
+  "categoryId": "671f019a1e03573103c881ce"
+}
+

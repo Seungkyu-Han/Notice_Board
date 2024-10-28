@@ -5,6 +5,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import org.bson.types.ObjectId
+import org.seungkyu.board.aop.UserLog
 import org.seungkyu.board.data.enums.Role
 import org.seungkyu.board.dto.req.CategoryPatchReq
 import org.seungkyu.board.dto.req.CategoryPostReq
@@ -22,6 +23,7 @@ class CategoryServiceImpl(
     private val categoryMongoRepository: CategoryMongoRepository
 ) : CategoryService{
 
+    @UserLog
     override suspend fun post(serverRequest: ServerRequest): ServerResponse {
         if(Role.ADMIN.name != getUserRoleByContext().awaitSingleOrNull()){
             return ServerResponse.status(403).buildAndAwait()
@@ -42,15 +44,17 @@ class CategoryServiceImpl(
         return ServerResponse.status(201).buildAndAwait()
     }
 
+    @UserLog
     override suspend fun get(serverRequest: ServerRequest): ServerResponse {
         return ServerResponse.ok().bodyValueAndAwait(withContext(Dispatchers.IO) {
             categoryMongoRepository.findAll()
                 .map {
-                    CategoryGetRes(name = it.name, searchCount = it.searchCount, id = it.id!!.toHexString())
+                    CategoryGetRes(name = it.name!!, searchCount = it.searchCount!!, id = it.id!!.toHexString())
                 }.toStream()
         }.toList())
     }
 
+    @UserLog
     override suspend fun patch(serverRequest: ServerRequest): ServerResponse {
 
         val categoryPatchReq = serverRequest.bodyToMono(CategoryPatchReq::class.java)
@@ -70,6 +74,7 @@ class CategoryServiceImpl(
         return ServerResponse.ok().buildAndAwait()
     }
 
+    @UserLog
     override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
         val categoryId = serverRequest.queryParamOrNull("id") ?: return ServerResponse.notFound().buildAndAwait()
 

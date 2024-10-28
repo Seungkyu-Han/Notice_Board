@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class CategoryDocument(
     @Id
     val id: ObjectId?,
-    var name: String,
-    val userId: String,
-    var isAscending: Boolean,
-    var searchCount: Int,
+    var name: String?,
+    val userId: String?,
+    var isAscending: Boolean?,
+    var searchCount: Int?,
 )
