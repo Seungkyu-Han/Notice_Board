@@ -183,8 +183,8 @@ class CategoryServiceImplTest{
                         Mono.just(
                             CategoryPatchReq(
                                 id = testCategory.id!!.toHexString(),
-                                name = testCategory.name,
-                                isAscending = testCategory.isAscending)
+                                name = testCategory.name!!,
+                                isAscending = testCategory.isAscending!!)
                         )
                     )
 
@@ -207,7 +207,7 @@ class CategoryServiceImplTest{
 
             }.contextWrite(
                 ReactiveSecurityContextHolder.withAuthentication(
-                    SeungkyuAuthentication(testCategory.userId, Role.ADMIN.name)
+                    SeungkyuAuthentication(testCategory.userId!!, Role.ADMIN.name)
                 )
             ).block()
         }
@@ -221,8 +221,8 @@ class CategoryServiceImplTest{
                         Mono.just(
                             CategoryPatchReq(
                                 id = testCategory.id!!.toHexString(),
-                                name = testCategory.name,
-                                isAscending = testCategory.isAscending)
+                                name = testCategory.name!!,
+                                isAscending = testCategory.isAscending!!)
                         )
                     )
 
@@ -275,7 +275,7 @@ class CategoryServiceImplTest{
                     .verifyComplete()
 
             }.contextWrite(ReactiveSecurityContextHolder.withAuthentication(
-                SeungkyuAuthentication(testCategory.userId, Role.ADMIN.name)
+                SeungkyuAuthentication(testCategory.userId!!, Role.ADMIN.name)
             )).block()
         }
 

@@ -49,7 +49,7 @@ class CategoryServiceImpl(
         return ServerResponse.ok().bodyValueAndAwait(withContext(Dispatchers.IO) {
             categoryMongoRepository.findAll()
                 .map {
-                    CategoryGetRes(name = it.name, searchCount = it.searchCount, id = it.id!!.toHexString())
+                    CategoryGetRes(name = it.name!!, searchCount = it.searchCount!!, id = it.id!!.toHexString())
                 }.toStream()
         }.toList())
     }

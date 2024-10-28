@@ -5,9 +5,9 @@ import org.springframework.web.reactive.function.server.ServerResponse
 
 interface PostService {
 
-    fun post(serverRequest: ServerRequest): ServerResponse
-    fun patch(serverRequest: ServerRequest): ServerResponse
-    fun get(serverRequest: ServerRequest): ServerResponse
-    fun delete(serverRequest: ServerRequest): ServerResponse
+    suspend fun post(serverRequest: ServerRequest): ServerResponse
+    suspend fun patch(serverRequest: ServerRequest): ServerResponse
+    suspend fun get(serverRequest: ServerRequest): ServerResponse
+    suspend fun delete(serverRequest: ServerRequest): ServerResponse
 
 }

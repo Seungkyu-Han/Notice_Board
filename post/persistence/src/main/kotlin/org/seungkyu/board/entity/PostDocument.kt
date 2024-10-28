@@ -10,13 +10,13 @@ import java.time.LocalDateTime
 @Document(collection = "Post")
 data class PostDocument(
     val id: ObjectId?,
-    val name: String,
+    var name: String,
     val userId: String,
-    val content: String,
+    var content: String,
     @CreatedDate
     val createdAt: LocalDateTime?,
     @LastModifiedDate
     var updatedAt: LocalDateTime?,
-    @DBRef
+    @DBRef(lazy = true)
     val categoryDocument: CategoryDocument
 )

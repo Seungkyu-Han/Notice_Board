@@ -1,12 +1,21 @@
 package org.seungkyu.board.service.impl
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.withContext
+import org.bson.types.ObjectId
+import org.seungkyu.board.dto.req.PostPatchReq
+import org.seungkyu.board.dto.req.PostPostReq
+import org.seungkyu.board.dto.res.PostGetRes
+import org.seungkyu.board.entity.CategoryDocument
+import org.seungkyu.board.entity.PostDocument
 import org.seungkyu.board.repository.PostMongoRepository
 import org.seungkyu.board.service.PostService
-import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.*
 import reactor.core.publisher.Mono
 
 @Service
@@ -14,37 +23,91 @@ class PostServiceImpl(
     private val postMongoRepository: PostMongoRepository
 ): PostService {
 
-    companion object {
-        private val log = LoggerFactory.getLogger(PostServiceImpl::class.java)
+    override suspend fun post(serverRequest: ServerRequest): ServerResponse {
+        val userId = getUserIdByContext().awaitSingleOrNull() ?:
+            return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
+
+        val postPostReq = serverRequest.bodyToMono(PostPostReq::class.java).awaitSingle()
+
+        val postDocument = PostDocument(
+            id = null,
+            name = postPostReq.name,
+            userId = userId,
+            content = postPostReq.content,
+            createdAt = null,
+            updatedAt = null,
+            categoryDocument = CategoryDocument(
+                id = ObjectId(postPostReq.categoryId),
+                name = null,
+                userId = null,
+                isAscending = null,
+                searchCount = null
+            )
+        )
+
+        postMongoRepository.save(postDocument).awaitSingle()
+
+        return ServerResponse.status(201).buildAndAwait()
     }
 
-    override fun post(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+    override suspend fun patch(serverRequest: ServerRequest): ServerResponse {
+        val userId = getUserIdByContext().awaitSingleOrNull() ?:
+        return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
+
+        val postPatchReq = serverRequest.bodyToMono(PostPatchReq::class.java).awaitSingle()
+
+        val postDocument = postMongoRepository.findById(ObjectId(postPatchReq.id)).awaitSingleOrNull()
+
+        if(postDocument == null)
+            return ServerResponse.status(HttpStatus.NOT_FOUND).buildAndAwait()
+        else if (postDocument.userId != userId) {
+            return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
+        }
+        else{
+            postDocument.name = postPatchReq.name
+            postDocument.content = postPatchReq.content
+            postMongoRepository.save(postDocument).awaitSingle()
+            return ServerResponse.ok().buildAndAwait()
+        }
     }
 
-    override fun patch(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+    override suspend fun get(serverRequest: ServerRequest): ServerResponse {
+        val userId = getUserIdByContext().awaitSingleOrNull() ?: return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
+        return ServerResponse.ok().bodyValueAndAwait(withContext(Dispatchers.IO) {
+            postMongoRepository.findByUserId(userId)
+                .map {
+                    PostGetRes(
+                        id = it.id!!.toHexString(),
+                        name = it.name,
+                        content = it.content,
+                        createdAt = it.createdAt,
+                        updatedAt = it.updatedAt,
+                        categoryId = it.categoryDocument.id!!.toHexString(),
+                    )
+                }.toStream()
+        }.toList())
     }
 
-    override fun get(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
-    }
+    override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
+        val userId = getUserIdByContext().awaitSingleOrNull() ?: return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
 
-    override fun delete(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val id = serverRequest.queryParamOrNull("id") ?: return ServerResponse.status(HttpStatus.NOT_FOUND).buildAndAwait()
+
+        val postDocument = postMongoRepository.findById(ObjectId(id)).awaitSingleOrNull() ?: return ServerResponse.status(HttpStatus.NOT_FOUND).buildAndAwait()
+
+        if(postDocument.userId != userId){
+            return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
+        }
+        else{
+            postMongoRepository.delete(postDocument).awaitSingle()
+            return ServerResponse.ok().buildAndAwait()
+        }
     }
 
     private fun getUserIdByContext(): Mono<String> {
         return ReactiveSecurityContextHolder.getContext()
             .map {
                 it.authentication.name
-            }
-    }
-
-    private fun getUserRoleByContext(): Mono<String> {
-        return ReactiveSecurityContextHolder.getContext()
-            .map{
-                it.authentication.authorities.first().authority
             }
     }
 }
