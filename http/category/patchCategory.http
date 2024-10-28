@@ -1,0 +1,52 @@
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "password": "1204"
+}
+
+> {%
+    client.test("test", function(){
+        client.global.set("admin_token", response.body.token)
+    })
+%}
+
+###
+POST http://localhost:8081/categories
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "testName",
+  "isAscending": true
+}
+###
+GET http://localhost:8081/categories
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+> {%
+    if (response.body && response.body.length > 0) {
+        const lastCategoryId = response.body[response.body.length - 1].id;
+        client.global.set("categoryId", lastCategoryId);
+        client.log("Category ID set to: " + lastCategoryId);
+    } else {
+        client.log("No categories found.");
+    }
+%}
+
+###
+PATCH http://localhost:8081/categories
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "id": "{{lastCategoryId}}",
+  "name": "testName2",
+  "isAscending": false
+}
+
+> {%
+    client.log(client.global.get("categoryId"))
+%}

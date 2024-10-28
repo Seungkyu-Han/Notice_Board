@@ -182,7 +182,7 @@ class CategoryServiceImplTest{
                     .thenReturn(
                         Mono.just(
                             CategoryPatchReq(
-                                id = testCategory.id!!,
+                                id = testCategory.id!!.toHexString(),
                                 name = testCategory.name,
                                 isAscending = testCategory.isAscending)
                         )
@@ -220,7 +220,7 @@ class CategoryServiceImplTest{
                     .thenReturn(
                         Mono.just(
                             CategoryPatchReq(
-                                id = testCategory.id!!,
+                                id = testCategory.id!!.toHexString(),
                                 name = testCategory.name,
                                 isAscending = testCategory.isAscending)
                         )

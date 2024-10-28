@@ -1,9 +1,10 @@
 package org.seungkyu.board.dto.req
 
-import org.bson.types.ObjectId
+import com.fasterxml.jackson.annotation.JsonProperty
 
 data class CategoryPatchReq(
-    val id: ObjectId,
+    val id: String,
     val name: String,
+    @JsonProperty("isAscending")
     val isAscending: Boolean
 )

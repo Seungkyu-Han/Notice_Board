@@ -14,10 +14,7 @@ import org.seungkyu.board.repository.CategoryMongoRepository
 import org.seungkyu.board.service.CategoryService
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.bodyValueAndAwait
-import org.springframework.web.reactive.function.server.buildAndAwait
+import org.springframework.web.reactive.function.server.*
 import reactor.core.publisher.Mono
 
 @Service
@@ -26,9 +23,6 @@ class CategoryServiceImpl(
 ) : CategoryService{
 
     override suspend fun post(serverRequest: ServerRequest): ServerResponse {
-
-        println("HELLO")
-
         if(Role.ADMIN.name != getUserRoleByContext().awaitSingleOrNull()){
             return ServerResponse.status(403).buildAndAwait()
         }
@@ -52,16 +46,17 @@ class CategoryServiceImpl(
         return ServerResponse.ok().bodyValueAndAwait(withContext(Dispatchers.IO) {
             categoryMongoRepository.findAll()
                 .map {
-                    CategoryGetRes(name = it.name, searchCount = it.searchCount, id = it.id)
+                    CategoryGetRes(name = it.name, searchCount = it.searchCount, id = it.id!!.toHexString())
                 }.toStream()
         }.toList())
     }
 
     override suspend fun patch(serverRequest: ServerRequest): ServerResponse {
 
-        val categoryPatchReq = serverRequest.bodyToMono(CategoryPatchReq::class.java).awaitSingle()
+        val categoryPatchReq = serverRequest.bodyToMono(CategoryPatchReq::class.java)
+            .awaitSingle()
 
-        val categoryDocument = categoryMongoRepository.findById(categoryPatchReq.id).awaitSingleOrNull()
+        val categoryDocument = categoryMongoRepository.findById(ObjectId(categoryPatchReq.id)).awaitSingleOrNull()
             ?: return ServerResponse.status(404).buildAndAwait()
 
         if(categoryDocument.userId != getUserIdByContext().awaitSingle())
@@ -76,7 +71,7 @@ class CategoryServiceImpl(
     }
 
     override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
-        val categoryId = serverRequest.pathVariable("id") ?: return ServerResponse.notFound().buildAndAwait()
+        val categoryId = serverRequest.queryParamOrNull("id") ?: return ServerResponse.notFound().buildAndAwait()
 
         val categoryDocument = categoryMongoRepository.findById(ObjectId(categoryId)).awaitSingleOrNull() ?: return ServerResponse.notFound().buildAndAwait()
 
