@@ -9,8 +9,6 @@ spring:
     redis:
       host: localhost
       port: 12042
-      repositories:
-        enabled: true
 
 jwt:
   secret-key: newSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyunewSeungkyu

@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.bson.types.ObjectId
 import org.seungkyu.board.dto.req.PostPatchReq
 import org.seungkyu.board.dto.req.PostPostReq
+import org.seungkyu.board.dto.res.PostFindRes
 import org.seungkyu.board.dto.res.PostGetRes
 import org.seungkyu.board.entity.PostDocument
 import org.seungkyu.board.repository.CategoryMongoRepository
@@ -104,6 +105,26 @@ class PostServiceImpl(
             postMongoRepository.delete(postDocument).awaitSingle()
             return ServerResponse.ok().buildAndAwait()
         }
+    }
+
+    override suspend fun find(serverRequest: ServerRequest): ServerResponse {
+        val name = serverRequest.queryParamOrNull("name") ?: return ServerResponse.badRequest().buildAndAwait()
+
+        return ServerResponse.ok().bodyValueAndAwait(withContext(Dispatchers.IO) {
+            postMongoRepository.findByNameContains(name)
+                .map {
+                    PostFindRes(
+                        id = it.id!!.toHexString(),
+                        name = it.name,
+                        isAdmin = true,
+                        views = 0,
+                        categoryId = it.categoryDocument?.toHexString(),
+                        createdAt = it.createdAt!!,
+                        updatedAt = it.updatedAt!!,
+                        fileIds = listOf()
+                    )
+                }.toStream()
+        }.toList())
     }
 
     private fun getUserIdByContext(): Mono<String> {
