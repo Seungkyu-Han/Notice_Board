@@ -1,0 +1,61 @@
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "password": "1204"
+}
+
+> {%
+    client.test("test", function(){
+        client.global.set("admin_token", response.body.token)
+    })
+%}
+
+###
+POST http://localhost:8081/categories
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "testName",
+  "isAscending": true
+}
+
+> {%
+    client.test("post_category_forbidden", function(){
+        client.assert(response.status == 201)
+    })
+%}
+
+
+###
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "id": "seungkyu",
+  "password": "1204"
+}
+
+> {%
+    client.test("test", function(){
+        client.global.set("token", response.body.token)
+    })
+%}
+
+###
+POST http://localhost:8081/categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "testName",
+  "isAscending": true
+}
+
+> {%
+ client.test("post_category_forbidden", function(){
+     client.assert(response.status == 403)
+ })
+ %}
