@@ -14,7 +14,7 @@ memory: 500MB
 
 결과
 
-![img.png](image/test_result)
+![img.png](image/test_result.png)
 
 초당 200개의 Create 요청을 안정적으로 수행
 
