@@ -3,6 +3,7 @@ package org.seungkyu.board.service.impl
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
+import org.seungkyu.board.dto.req.CommentPatchReq
 import org.seungkyu.board.dto.req.CommentPostReq
 import org.seungkyu.board.entity.CommentDocument
 import org.seungkyu.board.repository.PostMongoRepository
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.buildAndAwait
 import reactor.core.publisher.Mono
+import java.lang.IndexOutOfBoundsException
 
 @Service
 class CommentServiceImpl(
@@ -38,7 +40,21 @@ class CommentServiceImpl(
     }
 
     override suspend fun patch(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val commentPostReq = serverRequest.bodyToMono(CommentPatchReq::class.java).awaitSingleOrNull()
+
+        val postDocument = postMongoRepository.findById(ObjectId(commentPostReq!!.postId)).awaitSingleOrNull() ?:
+        return ServerResponse.notFound().buildAndAwait()
+
+        try{
+            postDocument.comments[commentPostReq.commentIndex].contents = commentPostReq.contents
+
+        }catch(e: IndexOutOfBoundsException){
+            return ServerResponse.notFound().buildAndAwait()
+        }
+
+        postMongoRepository.save(postDocument).awaitSingle()
+
+        return ServerResponse.ok().buildAndAwait()
     }
 
     override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
