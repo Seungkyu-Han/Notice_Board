@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.buildAndAwait
+import org.springframework.web.reactive.function.server.queryParamOrNull
 import reactor.core.publisher.Mono
 import java.lang.IndexOutOfBoundsException
 
@@ -58,7 +59,21 @@ class CommentServiceImpl(
     }
 
     override suspend fun delete(serverRequest: ServerRequest): ServerResponse {
-        TODO("Not yet implemented")
+        val postId = serverRequest.queryParamOrNull("postId") ?: return ServerResponse.badRequest().buildAndAwait()
+        val commentIndex = serverRequest.queryParamOrNull("commentIndex") ?: return ServerResponse.badRequest().buildAndAwait()
+
+        val postDocument = postMongoRepository.findById(ObjectId(postId)).awaitSingleOrNull() ?:
+            return ServerResponse.notFound().buildAndAwait()
+
+        try{
+            postDocument.comments.removeAt(commentIndex.toInt())
+        }catch(e: IndexOutOfBoundsException){
+            return ServerResponse.badRequest().buildAndAwait()
+        }
+
+        postMongoRepository.save(postDocument).awaitSingle()
+
+        return ServerResponse.ok().buildAndAwait()
     }
 
     private fun getUserIdByContext(): Mono<String> {
