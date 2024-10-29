@@ -20,5 +20,5 @@ data class PostDocument (
     var updatedAt: LocalDateTime?,
     var categoryDocument: ObjectId?,
 
-    var comments: List<String>
+    var comments: MutableList<CommentDocument>
 )
