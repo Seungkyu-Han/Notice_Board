@@ -1,0 +1,8 @@
+POST http://localhost:8081/comments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "postId": "671f380eb86cb6532719acda",
+  "contents": "hello"
+}

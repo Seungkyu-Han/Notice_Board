@@ -42,6 +42,7 @@ class PostServiceImpl(
             createdAt = null,
             updatedAt = null,
             categoryDocument = ObjectId(postPostReq.categoryId),
+            comments = mutableListOf()
         )
 
 
@@ -85,7 +86,7 @@ class PostServiceImpl(
                         content = it.content,
                         createdAt = it.createdAt,
                         updatedAt = it.updatedAt,
-                        categoryId = it.categoryDocument!!.toHexString(),
+                        categoryId = it.categoryDocument!!.toHexString()
                     )
                 }.toStream()
         }.toList())
@@ -121,7 +122,8 @@ class PostServiceImpl(
                         categoryId = it.categoryDocument?.toHexString(),
                         createdAt = it.createdAt!!,
                         updatedAt = it.updatedAt!!,
-                        fileIds = listOf()
+                        fileIds = listOf(),
+                        comments = it.comments?.map{it1 -> it1.contents}
                     )
                 }.toStream()
         }.toList())

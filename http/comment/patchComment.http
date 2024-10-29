@@ -1,0 +1,9 @@
+PATCH http://localhost:8081/comments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "commentIndex": 0,
+  "postId": "671f380eb86cb6532719acda",
+  "contents": "hi"
+}
