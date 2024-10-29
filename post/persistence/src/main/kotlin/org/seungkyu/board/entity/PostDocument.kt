@@ -19,6 +19,5 @@ data class PostDocument (
     @LastModifiedDate
     var updatedAt: LocalDateTime?,
     var categoryDocument: ObjectId?,
-
-    var comments: MutableList<CommentDocument>
+    var comments: MutableList<CommentDocument>? = mutableListOf()
 )

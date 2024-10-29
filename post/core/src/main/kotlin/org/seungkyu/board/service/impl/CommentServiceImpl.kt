@@ -28,7 +28,7 @@ class CommentServiceImpl(
         val postDocument = postMongoRepository.findById(ObjectId(commentPostReq!!.postId)).awaitSingleOrNull() ?:
             return ServerResponse.notFound().buildAndAwait()
 
-        postDocument.comments.add(
+        postDocument.comments?.add(
             CommentDocument(
                 contents = commentPostReq.contents,
                 userId = this.getUserIdByContext().awaitSingle()
@@ -46,8 +46,11 @@ class CommentServiceImpl(
         val postDocument = postMongoRepository.findById(ObjectId(commentPostReq!!.postId)).awaitSingleOrNull() ?:
         return ServerResponse.notFound().buildAndAwait()
 
+        if(postDocument.comments.isNullOrEmpty())
+            return ServerResponse.notFound().buildAndAwait()
+
         try{
-            postDocument.comments[commentPostReq.commentIndex].contents = commentPostReq.contents
+            postDocument.comments!![commentPostReq.commentIndex].contents = commentPostReq.contents
 
         }catch(e: IndexOutOfBoundsException){
             return ServerResponse.notFound().buildAndAwait()
@@ -66,7 +69,7 @@ class CommentServiceImpl(
             return ServerResponse.notFound().buildAndAwait()
 
         try{
-            postDocument.comments.removeAt(commentIndex.toInt())
+            postDocument.comments!!.removeAt(commentIndex.toInt())
         }catch(e: IndexOutOfBoundsException){
             return ServerResponse.badRequest().buildAndAwait()
         }

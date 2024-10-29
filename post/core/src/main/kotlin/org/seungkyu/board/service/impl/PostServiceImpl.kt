@@ -42,7 +42,7 @@ class PostServiceImpl(
             createdAt = null,
             updatedAt = null,
             categoryDocument = ObjectId(postPostReq.categoryId),
-            comments = listOf()
+            comments = mutableListOf()
         )
 
 
