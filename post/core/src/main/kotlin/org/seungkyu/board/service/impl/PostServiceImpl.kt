@@ -30,9 +30,6 @@ class PostServiceImpl(
             return ServerResponse.status(HttpStatus.FORBIDDEN).buildAndAwait()
 
         val postPostReq = serverRequest.bodyToMono(PostPostReq::class.java).awaitSingle()
-        val category = categoryMongoRepository.findById(ObjectId(postPostReq.categoryId)).awaitSingleOrNull()
-
-        println(category)
 
         val postDocument = PostDocument(
             id = null,
