@@ -4,7 +4,7 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://seungkyu:1204@localhost:12041/users?authSource=admin
+      uri: mongodb://seungkyu:1204@mongodb:27017/users?authSource=admin
       auto-index-creation: false
     redis:
       host: localhost

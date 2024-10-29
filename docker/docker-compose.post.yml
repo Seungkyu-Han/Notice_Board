@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  post-server:
+    container_name: post-server
+    build:
+      context: ../post/.
+    image: post-server-image
+    ports:
+      - "8081:8081"
+    networks:
+      - seungkyu
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
+
+networks:
+  seungkyu:
