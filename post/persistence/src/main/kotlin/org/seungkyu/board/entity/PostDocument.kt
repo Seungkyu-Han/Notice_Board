@@ -18,5 +18,7 @@ data class PostDocument (
     var createdAt: LocalDateTime?,
     @LastModifiedDate
     var updatedAt: LocalDateTime?,
-    var categoryDocument: ObjectId?
+    var categoryDocument: ObjectId?,
+
+    var comments: List<String>
 )
