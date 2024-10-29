@@ -10,5 +10,6 @@ data class PostFindRes(
     val categoryId: String?,
     val fileIds: List<String>,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val comments: List<String>?
 )
