@@ -18,3 +18,4 @@ include("post:core")
 findProject(":post:core")?.name = "core"
 include("post:persistence")
 findProject(":post:persistence")?.name = "persistence"
+include("gateway")
