@@ -15,8 +15,8 @@ repositories {
 dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j:3.1.2")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway:4.1.5")
 }
 
 tasks.test {
